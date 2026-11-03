@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#090c0b"><title>写下你的留言 · TEAM UP</title><link rel="stylesheet" href="styles.css"><script src="config.js" defer></script><script src="vendor/supabase.js" defer></script><script src="js/common.js" defer></script><script src="js/submit.js" defer></script></head>
+<body class="form-page"><header class="topbar"><a class="brand" href="./">TEAM UP <span>↗</span></a><a class="small-link" href="./">查看留言墙 ↗</a></header>
+<main class="form-shell"><p class="eyebrow">A LITTLE ABOUT YOU</p><h1>嗨，<br>很高兴遇见你。</h1><p class="intro">留一句话，让大家认识你。</p>
+<form id="messageForm"><div class="field"><label for="name">姓名</label><input id="name" name="name" autocomplete="name" required maxlength="40" placeholder="大家怎么称呼你" aria-describedby="nameHint"><small id="nameHint">最多 40 个字符</small></div>
+<div class="field"><label for="message">留言</label><textarea id="message" name="message" required maxlength="500" rows="5" placeholder="介绍自己，或分享一个想一起完成的点子…" aria-describedby="messageHint"></textarea><small id="messageHint"><span id="charCount">0</span> / 500</small></div>
+<p class="privacy">提交后，姓名和留言会公开显示在留言墙上。访客无法修改或删除，请确认后提交。</p>
+<p id="formStatus" class="notice" role="status" aria-live="polite"></p><button id="send" type="submit" class="button full">提交留言 <span>↗</span></button></form>
+<section id="success" class="success" hidden tabindex="-1"><span class="success-icon" aria-hidden="true">✓</span><h2>你的声音，已到达。</h2><p>留言已保存，会自动出现在留言墙。</p><a class="button full" href="./">看看大家的留言 ↗</a><button id="another" type="button" class="text-button">再写一条</button></section></main>
+<noscript><p class="notice">请启用 JavaScript，以提交留言。</p></noscript></body></html>
