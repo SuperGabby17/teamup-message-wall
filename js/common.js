@@ -20,7 +20,7 @@
     error(error) {
       if (error?.code === '42501') return '数据库权限尚未配置，请管理员运行 supabase/schema.sql。';
       if (error?.code === '42P01' || error?.code === 'PGRST205') return '留言表尚未建立，请管理员运行 supabase/schema.sql。';
-      if (error?.code === '23514') return '姓名或留言长度不符合要求，请检查后重试。';
+      if (error?.code === '23514') return '资料长度不符合要求，请检查后重试。';
       if (!navigator.onLine) return '网络已断开，恢复连接后可重试。';
       return '暂时无法连接留言服务，请稍后重试；填写内容已保留。';
     }

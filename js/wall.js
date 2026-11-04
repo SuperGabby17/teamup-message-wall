@@ -16,14 +16,19 @@
       const top = document.createElement('div');top.className = 'card-top';
       const avatar = document.createElement('span');avatar.className = 'avatar';avatar.setAttribute('aria-hidden','true');avatar.textContent = Array.from(row.name)[0] || '·';
       const name = document.createElement('h3');name.textContent = row.name;
-      const message = document.createElement('p');message.textContent = row.message;
+      const profile=TeamupProfile.decode(row.message);
+      const message = document.createElement('p');message.textContent = profile.bio;
       const time = document.createElement('time');const parsed = new Date(row.created_at);if (!Number.isNaN(parsed.valueOf())) {time.dateTime = parsed.toISOString();time.textContent = date.format(parsed);}
-      top.append(avatar,name);card.append(top,message,time);entries.set(row.id,{row,card});added++;
+      top.append(avatar,name);
+      if(profile.mbti){const badge=document.createElement('span');badge.className='profile-mbti';badge.textContent=profile.mbti;top.append(badge);}
+      card.append(top,message);
+      for(const [label,values] of [['技能',profile.skills],['兴趣',profile.interests]])if(values.length){const section=document.createElement('div');section.className='profile-tags';const caption=document.createElement('strong');caption.textContent=label;section.append(caption);for(const value of values){const tag=document.createElement('span');tag.textContent=value;section.append(tag);}card.append(section);}
+      card.append(time);entries.set(row.id,{row,card});added++;
     }
     if (added) {
       const sorted = [...entries.values()].sort((a,b) => a.row.created_at.localeCompare(b.row.created_at) || a.row.id.localeCompare(b.row.id));
       $('messages').replaceChildren(...sorted.map(item => item.card));$('messageCount').textContent = String(entries.size).padStart(2,'0');
-      $('announcement').textContent = `已显示 ${entries.size} 条留言`;
+      $('announcement').textContent = `已显示 ${entries.size} 位伙伴`;
       $('wallNotice').hidden = true;
     }
   }
@@ -37,8 +42,8 @@
         if (error) throw error;merge(data || []);if (!data || data.length < 500) break;
       }
       $('retry').hidden = true;$('wallNotice').classList.remove('error');$('wallNotice').hidden = entries.size > 0;
-      if (!entries.size) $('wallNotice').textContent = '还没有留言。扫码，成为第一个打招呼的人。';
-      if (!live) state('loading','留言已更新 · 正在连接实时服务');
+      if (!entries.size) $('wallNotice').textContent = '还没有名片。扫码，成为第一个入场的人。';
+      if (!live) state('loading','名片已更新 · 正在连接实时服务');
     } catch (error) {$('wallNotice').hidden = false;$('wallNotice').classList.add('error');$('wallNotice').textContent = Teamup.error(error);$('retry').hidden = false;state('error','连接异常');}
     finally {syncing = false;if (resync) {resync = false;void refresh();}}
   }
