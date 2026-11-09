@@ -20,7 +20,7 @@
  }
  const syncSkills=suggestions('skills','skillSuggestions',['视觉设计','编程','摄影','文案','剪辑','策划','UI设计','产品设计','交互设计','活动策划','工程开发','AI应用','数据分析']);
  const syncInterests=suggestions('interests','interestSuggestions',['音乐','电影','运动','游戏','旅行','阅读','绘画','舞蹈','科技','时尚','美食','宠物','露营']);
- const portrait=id=>site+'/assets/model-'+id+'.png',steps=[...document.querySelectorAll('[data-step]')];
+ const portrait=id=>'./assets/model-'+id+'.png',steps=[...document.querySelectorAll('[data-step]')];
  function readProfile(){return {mbti:$('mbti').value,skills:TeamupProfile.parseTags($('skills').value),interests:TeamupProfile.parseTags($('interests').value),bio:$('message').value.trim(),appearance,status:$('teamStatus').value}}
  function profileList(name,p){const status={looking:'正在找队友',joined:'已加入团队',full:'团队已满员'};const list=document.createElement('dl');for(const [key,value] of [['昵称',name],['MBTI',p.mbti],['组队状态',status[p.status]||status.looking],['技能',p.skills.join('、')],['兴趣',p.interests.join('、')],['自我介绍',p.bio]]){const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=key;dd.textContent=value;list.append(dt,dd)}return list}
  function renderPreview(){const p=readProfile();$('entryPortrait').src=portrait(appearance);$('previewProfile').replaceChildren(profileList($('name').value.trim(),p))}
