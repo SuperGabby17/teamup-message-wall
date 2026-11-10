@@ -6,7 +6,7 @@
   try { new QRCode($('qrcode'), {text: submitURL.href, width: 224, height: 224, colorDark: '#10170e', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M}); }
   catch { $('qrcode').textContent = '二维码生成失败，请使用填写链接。'; }
   $('copyLink').onclick = async () => {try {await navigator.clipboard.writeText(submitURL.href);$('copyStatus').textContent = '填写链接已复制';} catch {$('copyStatus').textContent = '请长按或右键上方二维码，复制链接。';}};
-  const entries = new Map(); let db, channel, syncing = false, resync = false, live = false, scrolledToMember = false;
+  const entries = new Map(); let joinedProfiles = new Set(); let db, channel, syncing = false, resync = false, live = false, scrolledToMember = false;
   const date = new Intl.DateTimeFormat('zh-CN', {month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'});
   const state = (kind, text) => {$('connection').dataset.state = kind;$('connection').querySelector('span').textContent = text;};
   function merge(rows) {
@@ -23,7 +23,7 @@
       if(profile.mbti){const badge=document.createElement('span');badge.className='profile-mbti';badge.textContent=profile.mbti;top.append(badge);}
       card.append(top,message);
       for(const [label,values] of [['技能',profile.skills],['兴趣',profile.interests]])if(values.length){const section=document.createElement('div');section.className='profile-tags';const caption=document.createElement('strong');caption.textContent=label;section.append(caption);for(const value of values){const tag=document.createElement('span');tag.textContent=value;section.append(tag);}card.append(section);}
-      if(profile.status){const status=document.createElement('small');status.className='member-status';status.textContent=({looking:'正在找队友',joined:'已加入团队',full:'团队已满员'})[profile.status]+' · 本人填写';card.append(status)} card.append(time);entries.set(row.id,{row,card});added++;
+      if(profile.status || joinedProfiles.has(row.id)){const status=document.createElement('small');status.className='member-status';status.textContent=joinedProfiles.has(row.id)?'已组队':({looking:'正在找队友',joined:'已加入团队',full:'团队已满员'})[profile.status]+' · 本人填写';card.append(status)} card.append(time);entries.set(row.id,{row,card});added++;
     }
     if (added) {
       const sorted = [...entries.values()].sort((a,b) => a.row.created_at.localeCompare(b.row.created_at) || a.row.id.localeCompare(b.row.id));
@@ -32,6 +32,8 @@
       $('wallNotice').hidden = true; document.dispatchEvent(new Event('teamup:wall-updated')); if(!scrolledToMember && location.hash.startsWith('#member-')) { const target=document.getElementById(location.hash.slice(1)); if(target){scrolledToMember=true;requestAnimationFrame(()=>target.scrollIntoView({block:'center'}));} }
     }
   }
+  async function refreshStatuses(){if(!db)return;try{const joined=[];for(let from=0;;from+=500){const {data,error}=await db.from('teamup_member_status').select('profile_id').order('profile_id',{ascending:true}).range(from,from+499);if(error)throw error;joined.push(...(data||[]));if(!data||data.length<500)break}joinedProfiles=new Set(joined.map(x=>x.profile_id));for(const {row,card} of entries.values()){let label=card.querySelector('.member-status');const self=TeamupProfile.decode(row.message).status;if(!label&&(joinedProfiles.has(row.id)||self)){label=document.createElement('small');label.className='member-status';card.append(label)}if(label)label.textContent=joinedProfiles.has(row.id)?'已组队':self?(({looking:'正在找队友',joined:'已加入团队',full:'团队已满员'})[self]+' · 本人填写'):''}}catch{}}
+  window.teamupSyncStatuses=refreshStatuses;
   async function refresh() {
     if (!db) return;
     if (syncing) {resync = true;return;} syncing = true;
@@ -41,7 +43,7 @@
         const {data,error} = await db.from('messages').select('id,name,message,created_at').order('created_at',{ascending:true}).order('id',{ascending:true}).range(from,from+499);
         if (error) throw error;merge(data || []);if (!data || data.length < 500) break;
       }
-      $('retry').hidden = true;$('wallNotice').classList.remove('error');$('wallNotice').hidden = entries.size > 0;
+      await refreshStatuses();$('retry').hidden = true;$('wallNotice').classList.remove('error');$('wallNotice').hidden = entries.size > 0;
       if (!entries.size) $('wallNotice').textContent = '还没有名片。扫码，成为第一个入场的人。';
       if (!live) state('loading','名片已更新 · 正在连接实时服务');
     } catch (error) {$('wallNotice').hidden = false;$('wallNotice').classList.add('error');$('wallNotice').textContent = Teamup.error(error);$('retry').hidden = false;state('error','连接异常');}
