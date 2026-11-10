@@ -30,7 +30,7 @@
  $('backStep').onclick=()=>setStep(step-1);$('nextStep').onclick=()=>{if(step===1&&fields.map(validate).includes(false)){$('messageForm').reportValidity();return}setStep(step+1)};
  function saveOwner(data){owner=data;try{localStorage.setItem(storageKey,JSON.stringify(data));return true}catch{return false}}
  function editUrl(data){return location.origin+location.pathname+'#edit='+data.id+'.'+data.token}
- function showSuccess(name,p){$('submittedProfile').replaceChildren(profileList(name,p));const url=site+'/?member='+encodeURIComponent('scan-'+owner.id);$('viewMine').href=url+'#showcase';$('meetOthers').href=url+'#people';$('privateEditLink').value=editUrl(owner);$('messageForm').hidden=true;$('success').hidden=false;$('success').focus()}
+ function showSuccess(name,p){$('submittedProfile').replaceChildren(profileList(name,p));const url=new URL('./',location.href);url.searchParams.set('member',owner.id);$('viewMine').href=url.href+'#member-'+owner.id;$('meetOthers').href=url.href+'#messages';$('privateEditLink').value=editUrl(owner);$('messageForm').hidden=true;$('success').hidden=false;$('success').focus()}
  $('copyEditLink').onclick=async()=>{try{await navigator.clipboard.writeText($('privateEditLink').value);$('copyEditLink').textContent='已复制，妥善保存'}catch{$('privateEditLink').focus();$('privateEditLink').select();$('copyEditLink').textContent='请长按复制上方链接'}};
  $('editMine').onclick=()=>{$('success').hidden=true;$('messageForm').hidden=false;$('publicConsent').checked=false;setStep(1)};
  async function restoreOwner(){if(!db)return;let saved;const hash=location.hash.match(/^#edit=([0-9a-f-]{36})\.([0-9a-f]{64})$/i);if(hash){saved={id:hash[1],token:hash[2]}}else{try{saved=JSON.parse(localStorage.getItem(storageKey)||'null')}catch{}}

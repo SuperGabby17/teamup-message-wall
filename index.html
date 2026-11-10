@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="zh-CN">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#090c0b"><title>TEAM UP · 名片墙</title><link rel="stylesheet" href="styles.css?v=4"><script src="config.js" defer></script><script src="vendor/qrcode.js" defer></script><script src="vendor/supabase.js" defer></script><script src="js/common.js?v=2" defer></script><script src="js/profile-codec.js?v=2" defer></script><script src="js/wall.js?v=2" defer></script></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#090c0b"><title>TEAM UP · 名片墙</title><link rel="stylesheet" href="styles.css?v=5"><script src="config.js" defer></script><script src="vendor/qrcode.js" defer></script><script src="vendor/supabase.js" defer></script><script src="js/common.js?v=2" defer></script><script src="js/profile-codec.js?v=2" defer></script><script src="js/wall.js?v=3" defer></script></head>
 <body>
 <header class="topbar"><a class="brand" href="./">TEAM UP <span>↗</span></a><span class="eyebrow">一起，让想法发生</span><a class="small-link" href="submit.html">创建我的名片 ↗</a></header>
 <main class="shell">
@@ -9,7 +9,7 @@
   <div class="scan-card"><span class="eyebrow">SCAN TO CONNECT</span><a id="qrLink" href="submit.html" aria-label="打开手机填写页"><div id="qrcode" role="img" aria-label="扫码打开填写页"></div></a><p>扫一扫，加入这场对话</p><button id="copyLink" class="text-button" type="button">复制填写链接 ↗</button><p id="copyStatus" class="micro" role="status"></p></div>
  </section>
  <section class="wall-section" aria-labelledby="wallTitle"><div class="wall-heading"><div><p class="eyebrow">02 / EVERY VOICE</p><h2 id="wallTitle">伙伴名片 <span id="messageCount">00</span></h2></div><div id="connection" class="connection" role="status" data-state="loading"><i aria-hidden="true"></i><span>正在连接…</span></div></div>
- <p id="wallNotice" class="notice" role="status">正在读取留言…</p><button id="retry" class="text-button" type="button" hidden>重新连接 ↗</button><div id="messages" class="messages" role="list"></div><p id="announcement" class="sr-only" aria-live="polite"></p></section>
+ <p id="wallNotice" class="notice" role="status">正在读取留言…</p><button id="retry" class="text-button" type="button" hidden>重新连接 ↗</button><div id="messages" tabindex="-1" class="messages" role="list"></div><p id="announcement" class="sr-only" aria-live="polite"></p></section>
 </main><footer class="shell footer">TEAM UP <span>每一次相遇，都是一种可能。</span></footer>
 <noscript><p class="notice">请启用 JavaScript，以显示二维码和实时留言。</p></noscript>
 </body></html>

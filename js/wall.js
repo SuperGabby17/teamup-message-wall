@@ -6,30 +6,30 @@
   try { new QRCode($('qrcode'), {text: submitURL.href, width: 224, height: 224, colorDark: '#10170e', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M}); }
   catch { $('qrcode').textContent = '二维码生成失败，请使用填写链接。'; }
   $('copyLink').onclick = async () => {try {await navigator.clipboard.writeText(submitURL.href);$('copyStatus').textContent = '填写链接已复制';} catch {$('copyStatus').textContent = '请长按或右键上方二维码，复制链接。';}};
-  const entries = new Map(); let db, channel, syncing = false, resync = false, live = false;
+  const entries = new Map(); let db, channel, syncing = false, resync = false, live = false, scrolledToMember = false;
   const date = new Intl.DateTimeFormat('zh-CN', {month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'});
   const state = (kind, text) => {$('connection').dataset.state = kind;$('connection').querySelector('span').textContent = text;};
   function merge(rows) {
     let added = 0;
-    for (const row of rows) if (row?.id && typeof row.name === 'string' && typeof row.message === 'string' && !entries.has(row.id)) {
-      const card = document.createElement('article');card.className = 'message-card';card.setAttribute('role','listitem');
+    for (const row of rows) if (row?.id && typeof row.name === 'string' && typeof row.message === 'string' && (!entries.has(row.id) || entries.get(row.id).row.name !== row.name || entries.get(row.id).row.message !== row.message)) {
+      const card = document.createElement('article');card.className = 'message-card';card.setAttribute('role','listitem');card.id = 'member-'+row.id; if(new URLSearchParams(location.search).get('member')===row.id) card.classList.add('my-card');
       const top = document.createElement('div');top.className = 'card-top';
       const avatar = document.createElement('span');avatar.className = 'avatar';avatar.setAttribute('aria-hidden','true');avatar.textContent = Array.from(row.name)[0] || '·';
       const name = document.createElement('h3');name.textContent = row.name;
       const profile=TeamupProfile.decode(row.message);
-      const message = document.createElement('p');message.textContent = profile.bio;
+      const message = document.createElement('p');message.textContent = profile.bio; if(profile.appearance){const img=document.createElement('img');img.className='member-portrait';img.src='./assets/model-'+profile.appearance+'.png';img.alt='';img.loading='lazy';card.append(img)}
       const time = document.createElement('time');const parsed = new Date(row.created_at);if (!Number.isNaN(parsed.valueOf())) {time.dateTime = parsed.toISOString();time.textContent = date.format(parsed);}
       top.append(avatar,name);
       if(profile.mbti){const badge=document.createElement('span');badge.className='profile-mbti';badge.textContent=profile.mbti;top.append(badge);}
       card.append(top,message);
       for(const [label,values] of [['技能',profile.skills],['兴趣',profile.interests]])if(values.length){const section=document.createElement('div');section.className='profile-tags';const caption=document.createElement('strong');caption.textContent=label;section.append(caption);for(const value of values){const tag=document.createElement('span');tag.textContent=value;section.append(tag);}card.append(section);}
-      card.append(time);entries.set(row.id,{row,card});added++;
+      if(profile.status){const status=document.createElement('small');status.className='member-status';status.textContent=({looking:'正在找队友',joined:'已加入团队',full:'团队已满员'})[profile.status]+' · 本人填写';card.append(status)} card.append(time);entries.set(row.id,{row,card});added++;
     }
     if (added) {
       const sorted = [...entries.values()].sort((a,b) => a.row.created_at.localeCompare(b.row.created_at) || a.row.id.localeCompare(b.row.id));
       $('messages').replaceChildren(...sorted.map(item => item.card));$('messageCount').textContent = String(entries.size).padStart(2,'0');
       $('announcement').textContent = `已显示 ${entries.size} 位伙伴`;
-      $('wallNotice').hidden = true;
+      $('wallNotice').hidden = true; if(!scrolledToMember && location.hash.startsWith('#member-')) { const target=document.getElementById(location.hash.slice(1)); if(target){scrolledToMember=true;requestAnimationFrame(()=>target.scrollIntoView({block:'center'}));} }
     }
   }
   async function refresh() {
@@ -51,7 +51,7 @@
     try {db = Teamup.client();}
     catch (error) {$('wallNotice').textContent = error.message;$('wallNotice').classList.add('error');state('error','尚未连接');return;}
     if (channel) db.removeChannel(channel);
-    channel = db.channel('teamup-public-messages').on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'}, payload => merge([payload.new])).subscribe(status => {
+    channel = db.channel('teamup-public-messages').on('postgres_changes',{event:'*',schema:'public',table:'messages'}, payload => merge([payload.new])).subscribe(status => {
       live = status === 'SUBSCRIBED';
       if (live) {state('live','实时连接');void refresh();}
       else if (['CHANNEL_ERROR','TIMED_OUT','CLOSED'].includes(status)) {state('error','实时重连中 · 定时补读');$('retry').hidden = false;}
