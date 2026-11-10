@@ -29,7 +29,7 @@
       const sorted = [...entries.values()].sort((a,b) => a.row.created_at.localeCompare(b.row.created_at) || a.row.id.localeCompare(b.row.id));
       $('messages').replaceChildren(...sorted.map(item => item.card));$('messageCount').textContent = String(entries.size).padStart(2,'0');
       $('announcement').textContent = `已显示 ${entries.size} 位伙伴`;
-      $('wallNotice').hidden = true; if(!scrolledToMember && location.hash.startsWith('#member-')) { const target=document.getElementById(location.hash.slice(1)); if(target){scrolledToMember=true;requestAnimationFrame(()=>target.scrollIntoView({block:'center'}));} }
+      $('wallNotice').hidden = true; document.dispatchEvent(new Event('teamup:wall-updated')); if(!scrolledToMember && location.hash.startsWith('#member-')) { const target=document.getElementById(location.hash.slice(1)); if(target){scrolledToMember=true;requestAnimationFrame(()=>target.scrollIntoView({block:'center'}));} }
     }
   }
   async function refresh() {
