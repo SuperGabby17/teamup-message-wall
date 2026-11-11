@@ -13,3 +13,6 @@ body{overflow-x:hidden}header{height:80px}main{width:100%;min-height:calc(100svh
 .section-bar{justify-content:flex-end}
 
 .teams:not(.is-grid) .team{transition:transform .85s cubic-bezier(.22,.75,.2,1),filter .6s,box-shadow .6s;filter:brightness(.55)}.teams:not(.is-grid) .team.selected{filter:brightness(1)}@media(prefers-reduced-motion:reduce){.teams:not(.is-grid) .team{transition:none}}
+
+/* Position is interpolated continuously, without dwell stops. */
+.teams:not(.is-grid) .team{transition:filter .45s,box-shadow .45s}
