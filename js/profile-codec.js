@@ -2,7 +2,7 @@
 // Keep this file identical to the plaza's public/profile-codec.js.
 (() => {
   const mbtis = ['INTJ','INTP','ENTJ','ENTP','INFJ','INFP','ENFJ','ENFP','ISTJ','ISFJ','ESTJ','ESFJ','ISTP','ISFP','ESTP','ESFP','未测'];
-  const appearances = Object.freeze(Array.from({length:18},(_,i)=>'choice-'+String(i+1).padStart(2,'0')));
+  const appearances = Object.freeze(Array.from({length:20},(_,i)=>'choice-'+String(i+1).padStart(2,'0')));
   const prefix = '[TEAMUP:PROFILE:1]\n';
   const prefix2 = '[TEAMUP:PROFILE:2]\n';
   function parseTags(value) {
